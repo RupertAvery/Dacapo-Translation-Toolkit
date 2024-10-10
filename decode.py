@@ -1,6 +1,11 @@
 from pathlib import Path
 import sys, os
 
+"""
+Da Capo I&II- Plus Situation Portable 
+Decodes an .obj file into a script .txt file
+"""
+
 class StringBuilder:
     _file_str = None
     _byte_buf = None
@@ -306,6 +311,4 @@ def read_file(file_path):
 ## file_path = "script.bin"
 ## read_file(file_path)
 
-
-file_path = "script.bin"
 read_obj("obj/block3.obj", "test/block3.txt")
