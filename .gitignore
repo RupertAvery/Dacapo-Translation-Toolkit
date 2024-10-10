@@ -1,0 +1,8 @@
+/blocks
+/build
+/error
+/obj
+/scripts
+/test
+*.bin
+*.zip
