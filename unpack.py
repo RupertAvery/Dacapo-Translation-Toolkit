@@ -1,4 +1,5 @@
 
+import sys
 from pathlib import Path
 
 def extract_block(f, pointer):
@@ -17,6 +18,8 @@ def extract_block(f, pointer):
 
     
 def read_file(file_path):
+    pointers = []
+    block = 1
     try:
         with open(file_path, "rb") as f:
             # Read the first 4 bytes
@@ -34,7 +37,7 @@ def read_file(file_path):
 
             # Read the next 4 bytes and interpret them as a 16-bit number in little endian
             data = f.read(4)
-            number = int.from_bytes(data, byteorder='little')
+            end_marker = int.from_bytes(data, byteorder='little')
 
             # Size of file
             # print(hex(number))
@@ -42,7 +45,7 @@ def read_file(file_path):
         
             start = 0
             
-            pointers = []
+
             
             i = 0
             while start == 0 or f.tell() < start:
@@ -50,17 +53,16 @@ def read_file(file_path):
                 number = int.from_bytes(data, byteorder='little')
                 if start == 0:
                     start = number
-                pointers.append(number)
+                if number != end_marker:
+                    pointers.append(number)
                 i = i + 1
 
             Path("obj").mkdir(parents=True, exist_ok=True)
 
-            block = 1
-            
+           
             with open(f"obj/script.manifest", "w") as manifest:
                 
                 for p in pointers:
-                    print(hex(p))
                     data = extract_block(f, p)
                     obj_filename = f"obj/block{block}.obj"
                     with open(obj_filename, "wb") as obj:
@@ -73,6 +75,26 @@ def read_file(file_path):
         
     except Exception as e:
         print(f"An error occurred: {e}")
+    
+    return len(pointers)
 
-file_path = "script.bin"
-read_file(file_path)
+print("DaCapo Script Unpacker")
+print("======================")
+
+if len(sys.argv) == 1:
+    file_path = "script.bin"
+elif len(sys.argv) == 2:
+    file_path = sys.argv[1]
+else:
+    print("USAGE: ")
+    print("")
+    print("   unpack <path/to/script.bin>")
+    print("")
+    exit()
+
+
+print(f"Unpacking {file_path}...")
+
+blocks = read_file(file_path)
+
+print(f"{blocks} blocks unpacked to /obj folder")
