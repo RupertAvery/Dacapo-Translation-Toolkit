@@ -22,6 +22,9 @@ class StringBuilder:
     def __init__(self):
         self._file_str = ''
         self._byte_buf = ''
+        self._offsets = []
+        self._offset_index = 1
+
         
     def print(self, str = '', args = '', end = '\n'):
         self._file_str = self._file_str + str + end
