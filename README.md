@@ -29,6 +29,12 @@ First we will unpack the `.obj` files. To unpack the file, open a command termin
 unpack script.bin
 ```
 
+or simply
+
+```
+unpack
+```
+
 A folder named `obj` will be created, containing 1406 files named `block(number).obj` and a file named `script.manifest`
 
 ## Decoding an `.obj` file
@@ -36,13 +42,13 @@ A folder named `obj` will be created, containing 1406 files named `block(number)
 The `.obj` files contain byte script and Shift-JIS encoded text. To decode them into an editable script file, run the following command:
 
 ```
-decode obj/block1.obj scripts/block1.txt
+decode block1
 ```
 
 Or, to decode all the files:
 
 ```
-decode obj/script.manifest scripts
+decode all
 ```
 
 ## Encoding a `.txt` file
@@ -52,7 +58,13 @@ To encode a `.txt` file back into an `.obj` file, run the following command.
 NOTE: This will overwrite the `.obj` file without confirmation!
 
 ```
-encode scripts/block1.txt obj/block1.obj
+encode block1
+```
+
+Or, to encode all the files:
+
+```
+encode all
 ```
 
 ## Packing `script.bin`
@@ -60,7 +72,7 @@ encode scripts/block1.txt obj/block1.obj
 When you want to rebuild `script.bin` for testing, run the following command.
 
 ```
-pack obj/script.manifest build/script.bin
+pack build/script.bin
 ```
 
 A folder named `build` will be created and the compiled `script.bin` containing your changes will be placed there.
@@ -105,14 +117,14 @@ Not all of the commands are decoded into tokens, and some of the tokens purposes
 
 * Followed by 1 byte
 * Seems to remove an actor from the stage
-* AA determines which actor slot to remove from
+* AA determines which actor slot to remove from?
 
 `[SHOW_ACTOR] AA BB CC DD EE FF GG HH II JJ`
 
 * Followed by 9 bytes
 * Seems to add an actor to the stage
-* AA determines which actor slot to add the character to
-* BB determines which character to load into the slot
+* AA determines which actor slot to add the character to?
+* BB determines which character to load into the slot?
 
 `[TEXT] Some Text to Display`
 
@@ -152,14 +164,20 @@ Not all of the commands are decoded into tokens, and some of the tokens purposes
 
 * Displays the Choice text as a choice in a choice set
 
-`[JUMP-TO] AA BB`
+`[CHOICE-OFFSET] Labelname`
 
 * Occurs before a `[CHOICE]` token
-* Causes the script to jump `BBAA` bytes after the current script pointer (the point where the `[JUMP-TO]` token was read)
+* Causes the script to jump to the Label given by `Labelname`
 
 `[END-CHOICE]`
 
 * Occurs at the end of a choice set
+
+`[LABEL] Labelname`
+
+* Defines a Label named `Labelname`.  Used to calculate the offset for [CHOICE-OFFSET] jump.
+* Does not output any bytecode
+
 
 ## Text
 
@@ -179,4 +197,3 @@ e.g.
 
 There should probably be two kana per kanji
 
-# OBJ Files

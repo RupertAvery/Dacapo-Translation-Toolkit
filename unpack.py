@@ -29,8 +29,6 @@ def read_file(file_path):
             if header != b'\x44\x43\x31\x00':
                 print("The file header does not match the expected sequence.")
                 return
-
-            print("Header matched successfully!")
             
             # Skip the next 4 bytes
             f.seek(4, 1)
@@ -45,29 +43,36 @@ def read_file(file_path):
         
             start = 0
             
-
-            
             i = 0
             while start == 0 or f.tell() < start:
                 data = f.read(4)
+
                 number = int.from_bytes(data, byteorder='little')
+
                 if start == 0:
                     start = number
+
                 if number != end_marker:
                     pointers.append(number)
+
                 i = i + 1
 
             Path("obj").mkdir(parents=True, exist_ok=True)
 
-           
             with open(f"obj/script.manifest", "w") as manifest:
                 
                 for p in pointers:
+
                     data = extract_block(f, p)
-                    obj_filename = f"obj/block{block}.obj"
+
+                    obj_filename = f"obj\\block{block}.obj"
+
                     with open(obj_filename, "wb") as obj:
+
                         obj.write(data)
+
                     manifest.write(obj_filename + '\n')
+
                     block = block + 1
 
     except FileNotFoundError:
@@ -79,7 +84,7 @@ def read_file(file_path):
     return len(pointers)
 
 print("DaCapo Script Unpacker")
-print("======================")
+print("")
 
 if len(sys.argv) == 1:
     file_path = "script.bin"
@@ -88,7 +93,7 @@ elif len(sys.argv) == 2:
 else:
     print("USAGE: ")
     print("")
-    print("   unpack <path/to/script.bin>")
+    print("   unpack <path\\to\\script.bin>")
     print("")
     exit()
 
@@ -97,4 +102,4 @@ print(f"Unpacking {file_path}...")
 
 blocks = read_file(file_path)
 
-print(f"{blocks} blocks unpacked to /obj folder")
+print(f"{blocks} blocks unpacked to obj folder")

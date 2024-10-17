@@ -1,27 +1,14 @@
 
 from pathlib import Path
-import os
+import os, sys
 
-def extract_block(f, pointer):
-    header = f.read(4)
-    if header != b'\x4F\x42\x4A\x00':
-        print("The file header does not match the expected sequence.")
-        exit()
-        return
-
-    data = f.read(4)
-    size = int.from_bytes(data, byteorder='little')
-
-    f.seek(pointer, 0)
-    data = f.read(size)
-    return data
-
-    
 def build_file(file_path, script_path):
     try:
         total_size = 0
         blocks = 0
         sizes = []
+
+        # Collect OBJ file sizes
         with open(file_path, "r") as manifest:
             while line := manifest.readline():
                 obj_filename = line.strip()
@@ -40,13 +27,13 @@ def build_file(file_path, script_path):
                     # obj.seek(0)
                     # data = obj.read(size)
             
-
+        print(f"Writing {blocks} blocks...")
         Path("build").mkdir(parents=True, exist_ok=True)
 
         # There is a dummy pointer that points to the end of file
         # the header is 16 bytes
         pointer_start = blocks * 4 + 16 + 4
-        pointer = pointer_start 
+        pointer = pointer_start
         size = total_size + pointer_start
         sizebytes = size.to_bytes(4, 'little')
 
@@ -75,6 +62,30 @@ def build_file(file_path, script_path):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-file_path = "obj/script.manifest"
-script_path = "build/script.bin"
+
+
+print("DaCapo Script Packer")
+print("")
+
+if len(sys.argv) == 2:
+    file_path = "obj\\script.manifest"
+    script_path = sys.argv[1]
+elif len(sys.argv) == 3:
+    file_path = sys.argv[1]
+    script_path = sys.argv[2]
+else:
+    print("USAGE: ")
+    print("")
+    print("Pack the files in obj\\script.manifest to the specified .bin")
+    print("")
+    print("   pack <path\\to\\script.bin>")
+    print("")
+    print("Pack the files in the specified .manifest to the specified .bin")
+    print("")
+    print("   pack <path\\to\\script.manifest> <path\\to\\script.bin>")
+    print("")
+    exit()
+
 build_file(file_path, script_path)
+
+print("Done")
