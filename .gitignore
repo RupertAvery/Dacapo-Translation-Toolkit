@@ -6,3 +6,4 @@
 /test
 *.bin
 *.zip
+__pycache__

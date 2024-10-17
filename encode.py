@@ -42,6 +42,12 @@ encoder = Encoder()
 
 if src_path.lower().endswith(".manifest"):
     
+    if len(os.listdir(obj_path)) != 0:
+        print("The target directory is not empty. Are you sure you want to overwrite it?")
+        response = input()
+        if response.lower() != "y":
+            exit()
+            
     manifest = Manifest()
     files = manifest.read(src_path)
     

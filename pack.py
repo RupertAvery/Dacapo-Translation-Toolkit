@@ -7,19 +7,30 @@ def build_file(file_path, script_path):
         total_size = 0
         blocks = 0
         sizes = []
-
+        
+        if Path(script_path).exists():
+            print("The target file exists. Are you sure you want to overwrite? (Y/n)")
+            response = input()
+            if response.lower() != "y":
+                exit()
+       
+        obj_dir = os.path.dirname(file_path)       
+      
         # Collect OBJ file sizes
         with open(file_path, "r") as manifest:
             while line := manifest.readline():
                 obj_filename = line.strip()
-                with open(obj_filename, "rb") as obj:
+                
+                obj_path = os.path.join(obj_dir, obj_filename)
+                
+                with open(obj_path, "rb") as obj:
                     header = obj.read(4)
                     # Verify if the first 4 bytes match 44 43 31 00
                     if header != b'OBJ\x00':
                         print(f"Error reading {obj_filename}")
                         print("The file header does not match the expected sequence.")
                         return
-                    file_stats = os.stat(obj_filename)
+                    file_stats = os.stat(obj_path)
                     size = file_stats.st_size
                     total_size = total_size + size
                     blocks = blocks + 1
@@ -28,7 +39,10 @@ def build_file(file_path, script_path):
                     # data = obj.read(size)
             
         print(f"Writing {blocks} blocks...")
-        Path("build").mkdir(parents=True, exist_ok=True)
+        
+        script_dir = os.path.dirname(script_path)
+        
+        Path(script_dir).mkdir(parents=True, exist_ok=True)
 
         # There is a dummy pointer that points to the end of file
         # the header is 16 bytes
@@ -52,7 +66,10 @@ def build_file(file_path, script_path):
             with open(file_path, "r") as manifest:
                 while line := manifest.readline():
                     obj_filename = line.strip()
-                    with open(obj_filename, "rb") as obj:
+                    
+                    obj_path = os.path.join(obj_dir, obj_filename)
+                
+                    with open(obj_path, "rb") as obj:
                         data = obj.read()
                         script.write(data)
 

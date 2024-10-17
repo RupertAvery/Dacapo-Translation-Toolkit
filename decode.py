@@ -1,4 +1,5 @@
 import sys, os, ntpath
+from pathlib import Path 
 from src import Decoder
 
 """
@@ -13,7 +14,19 @@ def read_manifest(decoder: Decoder, src_path, script_path):
     :param src_path: The path to the .MANIFEST file
     :param script_path: The path where the decoded .TXT files will be placed
     """
+    
+    Path(script_path).mkdir(parents=True, exist_ok=True)
+    
     scripts = []
+    scripts_manifest = os.path.join(script_path, "script.manifest")
+    
+    if len(os.listdir(script_path)) != 0:
+        print("The target directory is not empty. Are you sure you want to overwrite it?")
+        response = input()
+        if response.lower() != "y":
+            exit()
+    
+    src_dir = os.path.dirname(src_path)
 
     with open(src_path, "r") as manifest:
 
@@ -23,19 +36,24 @@ def read_manifest(decoder: Decoder, src_path, script_path):
             
             nameext = ntpath.basename(obj_filename)
             
-            name = os.path.splitext(nameext)[0] + ".txt"
+            fname = os.path.splitext(nameext)[0]
+
+            name = fname + ".txt"
             
-            scripts.append(name)
+            if fname == "block213" or fname == "block222" or fname == "block832":
+                scripts.append("# " + name)
+            else:
+                scripts.append(name)
             
             script_full_path = os.path.join(script_path, name)
             
-            print(f"Decoding {obj_filename} to {script_full_path}")
+            obj_path = os.path.join(src_dir, obj_filename)
             
-            decoder.read_obj(obj_filename, script_full_path)
+            print(f"Decoding {obj_path} to {script_full_path}")
+            
+            decoder.read_obj(obj_path, script_full_path)
 
     print("Writing script.manifest")
-
-    scripts_manifest = os.path.join(script_path, "script.manifest")
 
     with open(scripts_manifest, "w") as manifest:
         
@@ -84,6 +102,10 @@ if src_path.lower().endswith(".manifest"):
     read_manifest(decoder, src_path, script_path)
 else:
     print(f"Decoding {src_path} to {script_path}")
+
+    script_dir = os.path.dirname(script_path)    
+    Path(script_dir).mkdir(parents=True, exist_ok=True)
+        
     decoder.read_obj(src_path, script_path)
 
 

@@ -1,5 +1,5 @@
 
-import sys
+import sys, os
 from pathlib import Path
 
 def extract_block(f, pointer):
@@ -17,7 +17,7 @@ def extract_block(f, pointer):
     return data
 
     
-def read_file(file_path):
+def read_file(file_path, obj_dir = "obj"):
     pointers = []
     block = 1
     try:
@@ -57,17 +57,21 @@ def read_file(file_path):
 
                 i = i + 1
 
-            Path("obj").mkdir(parents=True, exist_ok=True)
+            Path(obj_dir).mkdir(parents=True, exist_ok=True)
+            
+            manifest_path = os.path.join(obj_dir, "script.manifest")
 
-            with open(f"obj/script.manifest", "w") as manifest:
+            with open(manifest_path, "w") as manifest:
                 
                 for p in pointers:
 
                     data = extract_block(f, p)
 
-                    obj_filename = f"obj\\block{block}.obj"
+                    obj_filename = f"block{block}.obj"
 
-                    with open(obj_filename, "wb") as obj:
+                    obj_path = os.path.join(obj_dir, obj_filename)
+                    
+                    with open(obj_path, "wb") as obj:
 
                         obj.write(data)
 
@@ -88,18 +92,29 @@ print("")
 
 if len(sys.argv) == 1:
     file_path = "script.bin"
+    obj_path = "obj"
 elif len(sys.argv) == 2:
     file_path = sys.argv[1]
+    obj_path = "obj"
+elif len(sys.argv) == 2:
+    file_path = sys.argv[1]
+    obj_path = sys.argv[2]
 else:
     print("USAGE: ")
     print("")
+    print("   unpack")
+    print("")
+    print("")
     print("   unpack <path\\to\\script.bin>")
+    print("")
+    print("")
+    print("   unpack <path\\to\\script.bin> <path\\to\\obj>")
     print("")
     exit()
 
 
-print(f"Unpacking {file_path}...")
+print(f"Unpacking {file_path} to {obj_path}")
 
-blocks = read_file(file_path)
+blocks = read_file(file_path, obj_path)
 
-print(f"{blocks} blocks unpacked to obj folder")
+print(f"{blocks} blocks unpacked")
